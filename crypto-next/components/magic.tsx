@@ -28,7 +28,7 @@ const Magic = () => {
     const signOut = () => { wallet.signOut() }
 
     return (
-        <div className="flex flex-row items-center justify-center">
+        <div className="flex flex-row items-center">
             {signedAccountId
                 ? <button className="btn btn-secondary" onClick={signOut}>Logout {signedAccountId}</button>
                 : <button className="btn btn-secondary" onClick={signIn}>Login</button>
