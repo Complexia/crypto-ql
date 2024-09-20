@@ -11,7 +11,7 @@ export interface ResponseData {
     status: string;
 }
 
-const api = process.env.OPENAI_API_KEY;
+const api = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
 if (!api) {
   throw new Error('OPENAI_API_KEY is not set in the environment variables');
 }
