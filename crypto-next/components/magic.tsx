@@ -38,26 +38,54 @@ const Magic = () => {
 
     return (
         <div>
-            <div className="flex flex-row items-center">
+            <div className="">
                 {signedAccountId
-                    ? <button className="btn btn-secondary" onClick={signOut}>Logout {signedAccountId}</button>
-                    : <button className="btn btn-secondary" onClick={signIn}>Login</button>
+                    ? (
+                        <div className="flex flex-row items-center justify-between ">
+                            <article>
+                                <h1 className="text-4xl">{signedAccountId}</h1>
+                                <p className="text-4xl pt-4">
+                                    NEAR control center
+                                </p>
+                            </article>
+                            <button className="btn btn-secondary" onClick={signOut}>Logout {signedAccountId}</button>
+                        </div>
+                    )
+                    : (
+
+
+                        <button className="btn btn-secondary" onClick={signIn}>Login</button>
+
+                    )
                 }
             </div>
+            
+
             {signedAccountId &&
-                <div style={{ width: '50%', minWidth: '400px' }}>
-
-                    <div className="input-group input-group-sm mt-3 mb-3">
-                        <input className="form-control text-center" type="text" value={`MPC Contract: ${MPC_CONTRACT}`} disabled />
+                <div className="flex flex-col ">
+                    <article className="pb-4 ptp-4">
+                        <h1 className="text-4xl">Current Chain: {chain}</h1>
+                    </article>
+                    <article>
+                        <h1 className="text-4xl">Available Chains via NEAR MPC:</h1>
+                    </article>
+                    <div className="flex flex-row gap-4 mt-4 mb-6">
+                        <button 
+                            className={`btn w-36 ${chain === 'eth' ? 'btn-success' : 'btn-primary'}`} 
+                            onClick={() => setChain('eth')}
+                        >
+                            {chain === 'eth' && <span className="mr-2">✓</span>}
+                            Ethereum
+                        </button>
+                        <button 
+                            className={`btn w-36 ${chain === 'btc' ? 'btn-success' : 'btn-primary'}`} 
+                            onClick={() => setChain('btc')}
+                        >
+                            {chain === 'btc' && <span className="mr-2">✓</span>}
+                            Bitcoin
+                        </button>
                     </div>
-
-                    <div className="input-group input-group-sm my-2 mb-4">
-                        <span className="text-primary input-group-text" id="chain">Chain</span>
-                        <select className="form-select" aria-describedby="chain" value={chain} onChange={e => setChain(e.target.value)} >
-                            <option value="eth"> Ξ Ethereum </option>
-                            <option value="btc"> ₿ BTC </option>
-                        </select>
-                    </div>
+                    
 
                     {chain === 'eth' && <EthereumView props={{ setStatus, MPC_CONTRACT, transactions }} />}
                     {chain === 'btc' && <BitcoinView props={{ setStatus, MPC_CONTRACT }} />}
