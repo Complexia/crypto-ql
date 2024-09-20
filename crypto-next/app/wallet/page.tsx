@@ -41,11 +41,7 @@ export default function Home() {
                 </div>
             </div>
 
-            <div className="flex flex-col w-full my-14">
-                <h1 id="heading" className="text-2xl font-bold text-black p-4">
-                    My Wallet.
-                </h1>
-                <div className="flex flex-col items-center w-full">
+            {/* <div className="flex flex-col items-center w-full">
                     <div className="carousel rounded-box max-w-md space-x-4 p-4">
                         {wallet.map((item, index) => (
                             <div key={index} className="carousel-item">
@@ -54,15 +50,43 @@ export default function Home() {
                                     onClick={() => setSelectedWallet(item)}
                                 >
                                     <div className="card-body">
-                                        {/* <h2 className="card-title">Wallet {index + 1}</h2>
-                                    <p>Address: {item.address}</p>
-                                    <p>Value: {item.value} ETH</p> */}
                                         <img src={item.img} alt={`Wallet ${index + 1}`} />
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
+                </div>
+            </div> */}
+
+            <div className="flex flex-col w-full my-14">
+                <h1 id="heading" className="text-2xl font-bold text-black p-4">
+                    My Wallet.
+                </h1>
+                <div className="flex justify-center items-center w-full relative h-64">
+                    {wallet.map((item, index) => (
+                        <div
+                            key={index}
+                            className={`absolute cursor-pointer transition-all duration-300 ease-in-out ${
+                                index === 0 ? 'z-20' : 
+                                index === 1 ? 'z-10 translate-x-4 -translate-y-2' : 
+                                'z-0 translate-x-8 -translate-y-4'
+                            }`}
+                            onClick={() => setSelectedWallet(item)}
+                            style={{ 
+                                transform: `rotate(${index * 5}deg)`,
+                                left: `${50 + index * 10}%`,
+                                top: '50%',
+                                transition: 'all 0.3s ease-in-out'
+                            }}
+                        >
+                            <div className="card w-80 shadow-xl hover:scale-105 transition-transform duration-300">
+                                <div className="card-body p-0">
+                                    <img src={item.img} alt={`Wallet ${index + 1}`} className="w-full h-auto" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 
