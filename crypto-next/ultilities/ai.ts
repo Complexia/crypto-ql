@@ -11,7 +11,10 @@ export interface ResponseData {
     status: string;
 }
 
-const api = "";
+const api = process.env.OPENAI_API_KEY;
+if (!api) {
+  throw new Error('OPENAI_API_KEY is not set in the environment variables');
+}
 // 3. Initialize the OpenAI instance (could be passed as config instead of dotenv)
 const openai = new OpenAI({
     // apiKey: api,  // Make sure to pass this securely in React or as a parameter
@@ -107,9 +110,9 @@ export async function generateResponseAndAudio(message: string, modelName: strin
     let gptMessage = "";
     let fullMessage = "";
 
-    // 7. Common prompt for all models
-        const commonPrompt = `
-      You are Anita, a real-life AI assistant with ability to trigger blockchain transsaction. You listen to user then create a json paylaod for server to trigger blockchain transsactions.
+    // 6. Common prompt for all models
+    const commonPrompt = `
+      You are Anita, a real-life AI assistant with ability to trigger blockchain transsaction. You listen to user then create a json paylaod for server to trigger blockchain transsactions. If user promt not clear, do not return json.
 
       Examples:
 
@@ -140,8 +143,11 @@ export async function generateResponseAndAudio(message: string, modelName: strin
             "from": "${wallet}"
          }
 
+      4. User: "Hey, I want to... um, maybe send some..."
+         Anita: I apologize, but I couldn't understand your request clearly. Could you please provide more details about what you'd like to do? For example, if you want to send cryptocurrency, please specify the amount, the type of currency, and the recipient.
+
         ##
-      8. User: ${cleanedMessage}
+      5. User: ${cleanedMessage}
          Anita: 
         ##
       `;
@@ -154,6 +160,7 @@ export async function generateResponseAndAudio(message: string, modelName: strin
             modelName: 'gpt-4o-mini'
         });
         gptMessage = await llm.invoke(commonPrompt);  // Invoke the model with the prompt
+        console.log("this is Anita raw response , ",gptMessage);
         let jsonResponse = gptMessage.match(/\{[\s\S]*\}/);
         if (jsonResponse) {
             console.log("this is JSON TRIGGER FOR SERVER ", jsonResponse[0]);
