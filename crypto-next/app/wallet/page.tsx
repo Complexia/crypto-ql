@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 export default function Home() {
     const user = "Roma Li";
@@ -18,7 +19,7 @@ export default function Home() {
 
     type WalletType = typeof wallet[0];
     const [selectedWallet, setSelectedWallet] = useState<WalletType | null>(null);
-
+    const [selectedWalletIndex, setSelectedWalletIndex] = useState<number | null>(null);
     return (
         <main className="flex flex-col items-center justify-between bg-white screen-max-width">
 
@@ -65,27 +66,40 @@ export default function Home() {
                 </h1>
                 <div className="flex justify-center items-center w-full relative h-64">
                     {wallet.map((item, index) => (
-                        <div
+                        <motion.div
                             key={index}
-                            className={`absolute cursor-pointer transition-all duration-300 ease-in-out ${
-                                index === 0 ? 'z-20' : 
-                                index === 1 ? 'z-10 translate-x-4 -translate-y-2' : 
-                                'z-0 translate-x-8 -translate-y-4'
-                            }`}
-                            onClick={() => setSelectedWallet(item)}
-                            style={{ 
-                                transform: `rotate(${index * 5}deg)`,
-                                left: `${50 + index * 10}%`,
+                            className={`absolute cursor-pointer`}
+                            initial={{
+                                rotate: 0,
+                                x: '-50%',
+                                y: '-50%',
+                                zIndex: wallet.length - index,
+                                scale: 1 - (index * 0.005)  // Even smaller scaling factor for more exposure
+                            }}
+                            animate={{
+                                rotate: selectedWalletIndex !== null ? (index - selectedWalletIndex) * 3 : 0,
+                                x: selectedWalletIndex !== null ? `calc(-50% + ${(index - selectedWalletIndex) * 30}%)` : '-50%',  // Increased horizontal spread
+                                y: selectedWalletIndex !== null ? `calc(-50% + ${(index - selectedWalletIndex) * -1}%)` : '-50%',  // Further reduced vertical spread
+                                zIndex: selectedWalletIndex !== null ? (selectedWalletIndex === index ? wallet.length + 1 : wallet.length - Math.abs(index - selectedWalletIndex)) : wallet.length - index,
+                                scale: selectedWalletIndex !== null ? (selectedWalletIndex === index ? 1.1 : 1 - (Math.abs(index - selectedWalletIndex) * 0.005)) : 1 - (index * 0.005)  // Even smaller scaling factor for more exposure
+                            }}
+                            transition={{ duration: 0.3 }}
+                            onClick={() => {
+                                setSelectedWallet(item);
+                                setSelectedWalletIndex(index);
+                            }}
+                            style={{
+                                left: '50%',
                                 top: '50%',
-                                transition: 'all 0.3s ease-in-out'
+                                transformOrigin: 'center center',
                             }}
                         >
-                            <div className="card w-80 shadow-xl hover:scale-105 transition-transform duration-300">
+                            <div className="card w-80 shadow-xl">
                                 <div className="card-body p-0">
                                     <img src={item.img} alt={`Wallet ${index + 1}`} className="w-full h-auto" />
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </div>
