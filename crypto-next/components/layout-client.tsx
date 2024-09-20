@@ -44,22 +44,13 @@ const LayoutClient = ({ children }) => {
 
 
         <NearContext.Provider value={{ wallet, signedAccountId }}>
-            <main className="min-h-screen h-screen w-screen flex flex-row ">
+            <main className="min-h-screen h-screen w-screen flex flex-row">
                 <Sidebar />
-
-                <div className="flex flex-row">
-
-
-
-
-
-                    <div className="mx-12 my-12">
+                <div className="flex-grow overflow-auto">
+                    <div className="">
                         {children}
                     </div>
                 </div>
-
-
-
             </main>
         </NearContext.Provider>
 
