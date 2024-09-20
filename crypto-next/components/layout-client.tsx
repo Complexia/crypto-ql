@@ -29,7 +29,7 @@ const LayoutClient = ({ children }) => {
     const [wallet, setWallet] = useState<any>(null);
     useEffect(() => {
         // @ts-ignore
-        const wallet = new Wallet({ networkId: 'testnet', createAccessKeyFor: 'your-contract-id' });
+        const wallet = new Wallet({ networkId: 'testnet', createAccessKeyFor: 'guest-book.testnet' });
         wallet.startUp((signedAccountId) => {
             // Handle account change
             console.log(signedAccountId);
