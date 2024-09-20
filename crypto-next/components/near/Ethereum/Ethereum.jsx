@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext } from "react";
-import { NearContext } from "../../context";
+import { NearContext } from "@/context";
 
-import { Ethereum } from "../../services/ethereum";
-import { useDebounce } from "../../hooks/debounce";
+import { Ethereum } from "@/services/ethereum";
+import { useDebounce } from "@/hooks/debounce";
 import PropTypes from 'prop-types';
 import { useRef } from "react";
 import { TransferForm } from "./Transfer";

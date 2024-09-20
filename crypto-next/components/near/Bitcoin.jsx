@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext } from "react";
-import { NearContext } from "../context";
+import { NearContext } from "@/context";
 
-import { Bitcoin as Bitcoin } from "../services/bitcoin";
-import { useDebounce } from "../hooks/debounce";
+import { Bitcoin as Bitcoin } from "@/services/bitcoin";
+import { useDebounce } from "@/hooks/debounce";
 import PropTypes from 'prop-types';
 
 const BTC_NETWORK = 'testnet';
