@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import ChatBox from "@/components/ui/chatBox";
 
 export default function Home() {
     const user = "Roma Li";
@@ -109,7 +110,6 @@ export default function Home() {
                     Recent Transaction.
                 </h1>
                 <div className="flex justify-center">
-
                     <ul className="menu rounded-box w-full">
                         {transsaction.map((item, index) => (
                             <li key={index} className="flex flex-row items-center space-x-4">
@@ -137,7 +137,6 @@ export default function Home() {
                                             </svg>
                                             {item.status}
                                         </span>
-
                                     </div>
 
                                 </div>
@@ -145,8 +144,14 @@ export default function Home() {
 
                         ))}
                     </ul>
-
                 </div>
+            </div>
+
+            <div className="flex flex-col w-full my-14">
+                <h1 id="heading" className="text-2xl font-bold text-black p-4">
+                    Upcoming Payments
+                </h1>
+                <ChatBox/>
             </div>
 
         </main>
