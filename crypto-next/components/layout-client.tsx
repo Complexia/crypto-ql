@@ -33,10 +33,14 @@ const LayoutClient = ({ children }) => {
         wallet.startUp((signedAccountId) => {
             // Handle account change
             console.log(signedAccountId);
+            setSignedAccountId(signedAccountId);
         }).then(() => {
             // Wallet is now initialized and ready to use
             // You can store the wallet instance in state or context if needed
             setWallet(wallet);
+            //setSignedAccountId(signedAccountId);
+            //console.log(signedAccountId);
+
         });
     }, []);
 

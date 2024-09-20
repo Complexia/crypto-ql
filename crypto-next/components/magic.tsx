@@ -7,6 +7,8 @@ import { Wallet } from "@/services/near-wallet";
 const Magic = () => {
     // @ts-ignore
     const { wallet, signedAccountId } = useContext(NearContext);
+
+    console.log("from magic", signedAccountId);
     
 
     // In your page component or useEffect
