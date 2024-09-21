@@ -115,30 +115,33 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions } 
   return (
     <>
       <div className="row mb-3">
-        <label className="col-sm-2 col-form-label col-form-label-sm">Path:</label>
-        <div className="col-sm-10">
-          <input type="text" className="form-control form-control-sm" value={derivation} onChange={(e) => setDerivation(e.target.value)} disabled={loading} />
+        {/* <label className="col-sm-2 col-form-label col-form-label-sm">Path:</label> */}
+        <div className="flex flex-col">
+          {/* <input type="text" className="form-control form-control-sm" value={derivation} onChange={(e) => setDerivation(e.target.value)} disabled={loading} /> */}
           <div className="form-text" id="eth-sender"> {senderLabel} </div>
+          <button className="btn btn-primary max-w-32 my-4" onClick={() => {
+            setDerivation(derivationPath);
+          }}>Claim ENS</button>
         </div>
       </div>
-      <div className="input-group input-group-sm my-2 mb-4">
+      {/* <div className="input-group input-group-sm my-2 mb-4">
         <span className="text-primary input-group-text" id="chain">Action</span>
         <select className="form-select" aria-describedby="chain" onChange={e => setAction(e.target.value)} >
           <option value="transfer"> Ξ Transfer </option>
           <option value="function-call"> Ξ Call Counter </option>
         </select>
-      </div>
+      </div> */}
 
-      {
+      {/* {
         action === 'transfer'
           ? <TransferForm ref={childRef} props={{ Eth, senderAddress, loading }} />
           : <FunctionCallForm ref={childRef} props={{ Eth, senderAddress, loading }} />
-      }
+      } */}
 
-      <div className="text-center">
+      {/* <div className="text-center">
         {step === 'request' && <button className="btn btn-primary text-center" onClick={UIChainSignature} disabled={loading}> Request Signature </button>}
         {step === 'relay' && <button className="btn btn-success text-center" onClick={relayTransaction} disabled={loading}> Relay Transaction </button>}
-      </div>
+      </div> */}
     </>
   )
 

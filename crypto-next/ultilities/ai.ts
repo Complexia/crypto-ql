@@ -12,9 +12,10 @@ export interface ResponseData {
 }
 
 const api = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-if (!api) {
-  throw new Error('OPENAI_API_KEY is not set in the environment variables');
-}
+
+// if (!api) {
+//   throw new Error('OPENAI_API_KEY is not set in the environment variables');
+// }
 // 3. Initialize the OpenAI instance (could be passed as config instead of dotenv)
 const openai = new OpenAI({
     // apiKey: api,  // Make sure to pass this securely in React or as a parameter
