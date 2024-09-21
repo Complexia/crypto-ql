@@ -22,7 +22,10 @@ export interface ResponseData {
   status: string;
 }
 
-const api = process.env.OPENAI_API_KEY;
+
+
+const api = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+console.log("keyss", api);
 // 3. Initialize the OpenAI instance (could be passed as config instead of dotenv)
 const openai = new OpenAI({
   // apiKey: api,  // Make sure to pass this securely in React or as a parameter
@@ -377,6 +380,42 @@ const ChatBox = () => {
     });
   };
 
+  const handleSendText = async (text: string) => {
+    setInputText(text);
+    let prompt = `generate a json output that looks like this {
+      "function": "transfer",
+      "chain": "ethereum",
+      "receiver": "wallet_address",
+      "amount": "0.05"
+    } based on the user prompt/query. the json should represent the actions that need to be taken. User query: ` + text;
+
+    try {
+      console.log("Prompt:", prompt);
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
+      });
+
+      if (response.choices && response.choices.length > 0) {
+        const generatedText = response.choices[0].message.content;
+        console.log("OpenAI Response:", generatedText);
+        return generatedText;
+      } else {
+        console.error("No response from OpenAI");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error sending prompt to OpenAI:", error);
+      return null;
+    }
+  };
+
+
+
+
+
+
+
   // const videoRef = useRef<HTMLVideoElement>(null);
   // const [_error, setError] = useState<string | null>(null);
 
@@ -403,53 +442,53 @@ const ChatBox = () => {
   const [_tab, _setTab] = useState(1);
 
 
-  useEffect(() => {
-    if (transcript) {
-      setBotState("talk");
-      // Function to convert Base64 string to binary data (Uint8Array)
-      const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
-        const binaryString = window.atob(base64); // Decode base64 to binary string
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes.buffer;
-      };
-      if (transcript.contentType === "audio/mp3") {
-        // Convert the base64 data to an ArrayBuffer
-        const audioArrayBuffer = base64ToArrayBuffer(transcript.data);
-        // Create a Blob from the ArrayBuffer
-        const audioBlob = new Blob([audioArrayBuffer], { type: "audio/mp3" });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        // Play the audio
-        // Wait for 2 seconds before playing the audio
-        setTimeout(() => {
-          audio.play().catch((error) => {
-            console.error("Audio play failed:", error);
-          });
-        }, 1000); // 2000 milliseconds = 2 seconds
-        // Detect when the audio finishes playing
-        audio.addEventListener("ended", () => {
-          console.log("Audio finished playing");
-          setBotState("idle"); // Update bot state when audio ends
-          setTranscript(undefined); // Optionally reset transcript
-        });
-        // Cleanup the URL when the component is unmounted or transcript changes
-        return () => {
-          if (audioUrl) {
-            URL.revokeObjectURL(audioUrl);
-            audio.removeEventListener("ended", () => {
-              console.log("Cleanup");
-            });
-          }
-        };
-      } else {
-        console.error("Unsupported audio type:", transcript.contentType);
-      }
-    }
-  }, [transcript]);
+  // useEffect(() => {
+  //   if (transcript) {
+  //     setBotState("talk");
+  //     // Function to convert Base64 string to binary data (Uint8Array)
+  //     const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
+  //       const binaryString = window.atob(base64); // Decode base64 to binary string
+  //       const len = binaryString.length;
+  //       const bytes = new Uint8Array(len);
+  //       for (let i = 0; i < len; i++) {
+  //         bytes[i] = binaryString.charCodeAt(i);
+  //       }
+  //       return bytes.buffer;
+  //     };
+  //     if (transcript.contentType === "audio/mp3") {
+  //       // Convert the base64 data to an ArrayBuffer
+  //       const audioArrayBuffer = base64ToArrayBuffer(transcript.data);
+  //       // Create a Blob from the ArrayBuffer
+  //       const audioBlob = new Blob([audioArrayBuffer], { type: "audio/mp3" });
+  //       const audioUrl = URL.createObjectURL(audioBlob);
+  //       const audio = new Audio(audioUrl);
+  //       // Play the audio
+  //       // Wait for 2 seconds before playing the audio
+  //       setTimeout(() => {
+  //         audio.play().catch((error) => {
+  //           console.error("Audio play failed:", error);
+  //         });
+  //       }, 1000); // 2000 milliseconds = 2 seconds
+  //       // Detect when the audio finishes playing
+  //       audio.addEventListener("ended", () => {
+  //         console.log("Audio finished playing");
+  //         setBotState("idle"); // Update bot state when audio ends
+  //         setTranscript(undefined); // Optionally reset transcript
+  //       });
+  //       // Cleanup the URL when the component is unmounted or transcript changes
+  //       return () => {
+  //         if (audioUrl) {
+  //           URL.revokeObjectURL(audioUrl);
+  //           audio.removeEventListener("ended", () => {
+  //             console.log("Cleanup");
+  //           });
+  //         }
+  //       };
+  //     } else {
+  //       console.error("Unsupported audio type:", transcript.contentType);
+  //     }
+  //   }
+  // }, [transcript]);
 
 
   // useEffect(() => {
@@ -472,7 +511,7 @@ const ChatBox = () => {
   // };
 
   return (
-    <div className="flex items-center w-full p-4 bg-white rounded-lg shadow-md">
+    <div className="flex items-center w-full p-4 bg-primary rounded-2xl shadow-md">
       {/* <input
         type="text"
         placeholder={text}
@@ -486,19 +525,17 @@ const ChatBox = () => {
           if (e.key === 'Enter') {
             // Handle the enter key press here
             console.log("User entered:", inputText);
-            userEnter(inputText);
-            // You can call your API or perform any action here
+            handleSendText(inputText);
 
-            // For example: generateResponseAndAudio(inputText, "gpt", "Patrick Ha");
             setInputText(""); // Clear the input after submission
           }
         }
         }
         // placeholder={text}
-        className="flex-grow px-4 py-2 mr-4 text-gray-700 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex-grow px-4 py-2 mr-4 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       <div className="flex items-center">
-        <div className="p-2 mr-2 text-gray-500">
+        <div className="p-2 mr-2 ">
           <motion.svg
             width="30"
             height="30"
