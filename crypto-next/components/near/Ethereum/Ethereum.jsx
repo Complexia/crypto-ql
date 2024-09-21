@@ -55,7 +55,7 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions } 
 
   useEffect(() => {
     setEthAddress()
-    console.log(derivationPath)
+    console.log("this is here ...... ",derivationPath)
     async function setEthAddress() {
       const { address } = await Eth.deriveAddress(signedAccountId, derivationPath);
       setSenderAddress(address);
