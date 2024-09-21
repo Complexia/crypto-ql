@@ -85,7 +85,11 @@ export default function Home() {
             // setSenderLabel(address);
             const balance = await Eth.getBalance(address);
             // const transactions = await Eth.getTransactionHistory(address);
+            // Fetch transaction history
+            // const transactions = await Eth.getTransactionHistory(address);
+            // console.log("Transaction history:", transactions);
             console.log(`Your Ethereum address is: ${address}, balance: ${balance} ETH`)
+
             let wallet =
             {
                 img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/Gold%20Elegant%20Business%20Card-2.png",
