@@ -261,7 +261,7 @@ export default function Home() {
                 <h1 id="heading" className="text-2xl font-bold text-black p-4">
                     Upcoming Payments
                 </h1>
-                <ChatBox />
+                <ChatBox setStatus={undefined} setStatus2={undefined} />
             </div>
 
         </main>
