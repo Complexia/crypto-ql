@@ -92,7 +92,7 @@ const Magic = () => {
                         </div>
 
 
-                        {chain === 'eth' && <EthereumView props={{ setStatus, MPC_CONTRACT, transactions, status2, receiver, amount}} />}
+                        {chain === 'eth' && <EthereumView props={{ setStatus, MPC_CONTRACT, transactions, status2, setStatus2, receiver, amount}} />}
                         {chain === 'btc' && <BitcoinView props={{ setStatus, MPC_CONTRACT }} />}
 
                     </div>

@@ -47,11 +47,13 @@ const openai = new OpenAI({
 });
 
 const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
+
+  const [messages, setMessages] = useState<any>([]);
   // will be fetch from supaBase
   const contact = [
-    { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/profile1.png?t=2024-09-21T02%3A30%3A21.438Z", to: "Ben", value: 15000, status: "Success", prove: "0xabcd...efgh", chain: "eth" },
-    { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/profile2.jpg", to: "Phil", value: 5000, status: "Failed", prove: "0xabcd...efgh", chain: "btc" },
-    { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/profile3.jpg", to: "Alex", value: 16000, status: "Pending", prove: "0xabcd...efgh", chain: "cac" },
+    { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/profile1.png?t=2024-09-21T02%3A30%3A21.438Z", to: "Ben", value: 15000, status: "Success", prove: "0x491eeffffa66afadb1ffece07991682310e2f223", chain: "eth" },
+    { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/profile2.jpg", to: "Phil", value: 5000, status: "Failed", prove: "0x491eeffffa66afadb1ffece07991682310e2f221", chain: "btc" },
+    { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/profile3.jpg", to: "Alex", value: 16000, status: "Pending", prove: "0x491eeffffa66afadb1ffece07991682310e2f224", chain: "cac" },
   ];
 
   const getContactInfo = (userName: string) => {
@@ -104,6 +106,7 @@ const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
       setSignedTransaction(signedTransaction);
       setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
       setStep('relay');
+      setStatus2('relay');
 
       setReloaded(false);
       removeUrlParams();
@@ -493,7 +496,11 @@ const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
   // };
 
   const handleSendText = async (text: string) => {
+    setMessages([]);
     setInputText(text);
+    
+    setMessages([{ text: text, type: 'user' }]);
+    let newMessages = [{ text: text, type: 'user' }];
     let prompt = `generate a json output that looks like this {
       "function": "transfer",
       "chain": "ethereum",
@@ -511,17 +518,19 @@ const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
       if (response.choices && response.choices.length > 0) {
         const generatedText = response.choices[0].message.content;
         console.log("OpenAI Response:", generatedText);
+
+        setMessages([...newMessages, { text: generatedText, type: 'bot' }]);
         
         // Parse the JSON
         let json = JSON.parse(generatedText || '{}');
         console.log("JSON:", json);
         // Get address and chain if available
         const get_user = json.receiver ? getContactInfo(json.receiver) : null;
-        console.log("this is user from contact ",get_user);
+        console.log("this is user from contact ", get_user);
         json.receiver = get_user?.prove;
         json.chain = get_user?.chain;
 
-        console.log(" THIS IS FINAL PAYLOAD ",json);
+        console.log(" THIS IS FINAL PAYLOAD ", json);
         setSenderAddress(json.sender);
         setReceiverAddress(json.receiver);
         setAmount(json.amount);
@@ -529,9 +538,9 @@ const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
         setChain(json.chain);
 
 
-        if (json.chain === "ethereum" && json.function === "transfer") {
+        if (json.chain === "eth" && json.function === "transfer") {
 
-          
+
 
           setStatus2('request');
           // const { transaction, payload } = await Eth.createPayload(signedAccountId, json.receiver, json.amount, undefined);
@@ -649,111 +658,125 @@ const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
   //     setTab(index)
   // };
 
+  console.log("messages", messages);
+
   return (
-    <div className="flex items-center w-full p-4 bg-primary rounded-2xl shadow-md">
-      {/* <input
+    <>
+      <div className="chat-container flex flex-col space-y-4 overflow-y-auto max-h-60">
+        {messages.map((message, index) => (
+          <div key={index} className={`chat ${message.type === 'user' ? 'chat-start' : 'chat-end'}`}>
+            <div className={`chat-bubble ${message.type === 'user' ? 'chat-bubble-primary' : 'chat-bubble-secondary'}`}>
+              {message.text}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center w-full p-4 bg-primary rounded-2xl shadow-md">
+
+        {/* <input
         type="text"
         placeholder={text}
         className="flex-grow px-4 py-2 mr-4 text-gray-700 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
       /> */}
-      <input
-        type="text"
-        value={inputText}
-        onChange={(e) => setInputText(e.target.value)}
-        onKeyPress={(e) => {
-          if (e.key === 'Enter') {
-            // Handle the enter key press here
-            console.log("User entered:", inputText);
-            handleSendText(inputText);
+        <input
+          type="text"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              // Handle the enter key press here
+              console.log("User entered:", inputText);
+              handleSendText(inputText);
 
-            setInputText(""); // Clear the input after submission
+              setInputText(""); // Clear the input after submission
+            }
           }
-        }
-        }
-        // placeholder={text}
-        className="flex-grow px-4 py-2 mr-4 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <div className="flex items-center">
-        <div className="p-2 mr-2 ">
-          <motion.svg
-            width="30"
-            height="30"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            animate={
-              botState === "talk"
-                ? { rotate: [0, 5, -5, 0] }
-                : isRecording
-                  ? { rotate: 360 }
-                  : {}
-            }
-            transition={
-              botState === "talk"
-                ? { duration: 0.5, repeat: Infinity }
-                : isRecording
-                  ? { duration: 1, repeat: Infinity, ease: "linear" }
-                  : {}
-            }
+          }
+          // placeholder={text}
+          className="flex-grow px-4 py-2 mr-4 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <div className="flex items-center">
+          <div className="p-2 mr-2 ">
+            <motion.svg
+              width="30"
+              height="30"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              animate={
+                botState === "talk"
+                  ? { rotate: [0, 5, -5, 0] }
+                  : isRecording
+                    ? { rotate: 360 }
+                    : {}
+              }
+              transition={
+                botState === "talk"
+                  ? { duration: 0.5, repeat: Infinity }
+                  : isRecording
+                    ? { duration: 1, repeat: Infinity, ease: "linear" }
+                    : {}
+              }
+            >
+              <motion.path
+                d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                animate={botState === "talk" ? { scale: [1, 1.05, 1] } : {}}
+                transition={{ duration: 0.5, repeat: Infinity }}
+              />
+              <motion.path
+                d="M8 14C8 14 9.5 15 12 15C14.5 15 16 14 16 14"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                animate={botState === "talk" ? {
+                  d: [
+                    "M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14",
+                    "M8 14C8 14 9.5 15 12 15C14.5 15 16 14 16 14",
+                    "M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14",
+                    "M8 15C8 15 9.5 13 12 13C14.5 13 16 15 16 15"
+                  ]
+                } : { d: "M8 14C8 14 9.5 15 12 15C14.5 15 16 14 16 14" }}
+                transition={{ duration: 0.3, repeat: Infinity }}
+              />
+              <motion.path
+                d="M9 9H9.01"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                animate={botState === "talk" ? { scale: [1, 1.2, 1] } : {}}
+                transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 0.1 }}
+              />
+              <motion.path
+                d="M15 9H15.01"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                animate={botState === "talk" ? { scale: [1, 1.2, 1] } : {}}
+                transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 0.2 }}
+              />
+            </motion.svg>
+          </div>
+          <button
+            className="text-primary w-12 h-12 rounded-full flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, #DA07ED, #3066BE, #6EFAFB)',
+            }}
+          // onClick={() => handleRecording()}
           >
-            <motion.path
-              d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              animate={botState === "talk" ? { scale: [1, 1.05, 1] } : {}}
-              transition={{ duration: 0.5, repeat: Infinity }}
-            />
-            <motion.path
-              d="M8 14C8 14 9.5 15 12 15C14.5 15 16 14 16 14"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              animate={botState === "talk" ? {
-                d: [
-                  "M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14",
-                  "M8 14C8 14 9.5 15 12 15C14.5 15 16 14 16 14",
-                  "M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14",
-                  "M8 15C8 15 9.5 13 12 13C14.5 13 16 15 16 15"
-                ]
-              } : { d: "M8 14C8 14 9.5 15 12 15C14.5 15 16 14 16 14" }}
-              transition={{ duration: 0.3, repeat: Infinity }}
-            />
-            <motion.path
-              d="M9 9H9.01"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              animate={botState === "talk" ? { scale: [1, 1.2, 1] } : {}}
-              transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 0.1 }}
-            />
-            <motion.path
-              d="M15 9H15.01"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              animate={botState === "talk" ? { scale: [1, 1.2, 1] } : {}}
-              transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 0.2 }}
-            />
-          </motion.svg>
+            <svg stroke="currentColor" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         </div>
-        <button
-          className="text-primary w-12 h-12 rounded-full flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, #DA07ED, #3066BE, #6EFAFB)',
-          }}
-        // onClick={() => handleRecording()}
-        >
-          <svg stroke="currentColor" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
       </div>
-    </div>
+    </>
 
   )
 }

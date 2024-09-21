@@ -11,7 +11,7 @@ import { FunctionCallForm } from "./FunctionCall";
 const Sepolia = 11155111;
 const Eth = new Ethereum('https://rpc2.sepolia.org', Sepolia);
 
-export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions, status2, receiver, amount } }) {
+export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions, status2, setStatus2, receiver, amount } }) {
   const { wallet, signedAccountId } = useContext(NearContext);
 
   const [loading, setLoading] = useState(false);
@@ -72,7 +72,9 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions, s
 
     // const { transaction, payload } = await childRef.current.createPayload();
     
-    const { transaction, payload } = await Eth.createPayload(senderAddress, receiver, amount, undefined);
+    console.log("this is receiver",receiver)
+    console.log("MPC_CONTRACT", MPC_CONTRACT)
+    const { transaction, payload } = await Eth.createPayload(senderAddress, receiver, 0.0001, undefined);
 
     setStatus(`🕒 Asking ${MPC_CONTRACT} to sign the transaction, this might take a while`);
     try {
