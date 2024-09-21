@@ -14,6 +14,7 @@ const Magic = () => {
 
     console.log("from magic", signedAccountId);
     const [status, setStatus] = useState("Please login to request a signature");
+    const [status2, setStatus2] = useState("na");
     const [chain, setChain] = useState('eth');
 
     const txHash = new URLSearchParams(window.location.search).get('transactionHashes');
@@ -89,14 +90,14 @@ const Magic = () => {
                         </div>
 
 
-                        {chain === 'eth' && <EthereumView props={{ setStatus, MPC_CONTRACT, transactions }} />}
+                        {chain === 'eth' && <EthereumView props={{ setStatus, MPC_CONTRACT, transactions, status2}} />}
                         {chain === 'btc' && <BitcoinView props={{ setStatus, MPC_CONTRACT }} />}
 
                     </div>
                 }
                 
                 <div className=" bottom-0 fixed w-2/3 my-4">
-                    <ChatBox />
+                     <ChatBox setStatus={setStatus} setStatus2={setStatus2}/> 
                 </div>
 
             </div>
