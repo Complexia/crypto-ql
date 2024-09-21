@@ -8,23 +8,23 @@ const Sidebar = () => {
       <label htmlFor="my-drawer" className="drawer-overlay"></label>
       <ul className="menu p-4 w-80 h-full bg-base-200 text-base-content">
         <li>
-          <Link href="/test">
+          <Link href="/">
             <button className="btn btn-ghost btn-block justify-start">
               Dashboard
             </button>
           </Link>
         </li>
         <li>
-          <Link href="/test">
+          <Link href="/wallet">
             <button className="btn btn-ghost btn-block justify-start">
-              Friends
+              Wallet
             </button>
           </Link>
         </li>
         <li>
-          <Link href="/test">
+          <Link href="/friends">
             <button className="btn btn-ghost btn-block justify-start">
-              Add Friend
+              Friends
             </button>
           </Link>
         </li>

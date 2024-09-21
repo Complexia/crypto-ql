@@ -47,7 +47,20 @@ const openai = new OpenAI({
 });
 
 const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
+  // will be fetch from supaBase
+  const contact = [
+    { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/profile1.png?t=2024-09-21T02%3A30%3A21.438Z", to: "Ben", value: 15000, status: "Success", prove: "0xabcd...efgh", chain: "eth" },
+    { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/profile2.jpg", to: "Phil", value: 5000, status: "Failed", prove: "0xabcd...efgh", chain: "btc" },
+    { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/profile3.jpg", to: "Alex", value: 16000, status: "Pending", prove: "0xabcd...efgh", chain: "cac" },
+  ];
 
+  const getContactInfo = (userName: string) => {
+    const user = contact.find(c => c.to.toLowerCase() === userName.toLowerCase());
+    if (user) {
+      return { chain: user.chain, prove: user.prove };
+    }
+    return null;
+  };
 
   const { wallet, signedAccountId } = useContext(NearContext);
 
@@ -363,8 +376,6 @@ const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
   const streamRef = useRef<MediaStream | null>(null); // Store the media stream to stop it later
 
 
-
-
   // const handleRecording = () => {
 
   //   if (isRecording) {
@@ -486,7 +497,7 @@ const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
     let prompt = `generate a json output that looks like this {
       "function": "transfer",
       "chain": "ethereum",
-      "receiver": "wallet_address",
+      "receiver": "receiver_name",
       "amount": "0.05"
     } based on the user prompt/query. the json should represent the actions that need to be taken. User query: ` + text;
 
@@ -500,9 +511,17 @@ const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
       if (response.choices && response.choices.length > 0) {
         const generatedText = response.choices[0].message.content;
         console.log("OpenAI Response:", generatedText);
-        // parse the json
-        const json = JSON.parse(generatedText || '{}');
+        
+        // Parse the JSON
+        let json = JSON.parse(generatedText || '{}');
         console.log("JSON:", json);
+        // Get address and chain if available
+        const get_user = json.receiver ? getContactInfo(json.receiver) : null;
+        console.log("this is user from contact ",get_user);
+        json.receiver = get_user?.prove;
+        json.chain = get_user?.chain;
+
+        console.log(" THIS IS FINAL PAYLOAD ",json);
         setSenderAddress(json.sender);
         setReceiverAddress(json.receiver);
         setAmount(json.amount);

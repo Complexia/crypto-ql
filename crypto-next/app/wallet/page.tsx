@@ -1,16 +1,32 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import ChatBox from "@/components/ui/chatBox";
+import { NearContext } from "@/context";
+import { Ethereum } from "@/services/ethereum";
+import { useDebounce } from "@/hooks/debounce";
+import { Bitcoin as Bitcoin } from "@/services/bitcoin";
 
 export default function Home() {
-    const user = "Roma Li";
-    const wallet = [
-        { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/Gold%20Elegant%20Business%20Card-2.png", address: "0x1234...5678", value: 1.5, currency: "ETH" },
-        { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/Black%20White%20Elegant%20Minimalist%20Member%20Id%20Card.png?t=2024-09-20T13%3A32%3A27.402Z", address: "0xabcd...efgh", value: 2.3, currency: "USDC" },
-        { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/black%20blue%20white%20modern%20business%20id%20card.png?t=2024-09-20T13%3A32%3A53.657Z", address: "0x9876...5432", value: 0.8, currency: "BTC" }
+    const MPC_CONTRACT = 'v1.signer-prod.testnet';
+    const Sepolia = 11155111;
+    const Eth = new Ethereum('https://rpc2.sepolia.org', Sepolia);
+    const BTC_NETWORK = 'testnet';
+    const BTC = new Bitcoin('https://blockstream.info/testnet/api', BTC_NETWORK);
+    const childRef = useRef();
+
+
+    const { wallet, signedAccountId } = useContext(NearContext);
+    console.log("this is it ...... acc ", signedAccountId);
+    console.log("this is it ...... wallet ", wallet);
+
+    const user = signedAccountId;
+    const walletTest = [
+        { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/Gold%20Elegant%20Business%20Card-2.png", address: "0x1234...5678", value: 1.5, currency: "ETH", chain: "eth" },
+        { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/Black%20White%20Elegant%20Minimalist%20Member%20Id%20Card.png?t=2024-09-20T13%3A32%3A27.402Z", address: "0xabcd...efgh", value: 2.3, currency: "USDC", chain: "btc" },
+        { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/black%20blue%20white%20modern%20business%20id%20card.png?t=2024-09-20T13%3A32%3A53.657Z", address: "0x9876...5432", value: 0.8, currency: "BTC", chain: "near" }
     ];
     const transsaction = [
         { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/bank-landmark-svgrepo-com.svg?t=2024-09-20T14%3A04%3A33.731Z", to: "Ben", value: 15000, status: "Success", prove: "0xabcd...efgh" },
@@ -18,12 +34,108 @@ export default function Home() {
         { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/bank-landmark-svgrepo-com.svg?t=2024-09-20T14%3A04%3A33.731Z", to: "Alex", value: 16000, status: "Pending", prove: "0xabcd...efgh" },
     ];
 
-    type WalletType = typeof wallet[0];
+    type WalletType = typeof walletTest[0];
     const [selectedWallet, setSelectedWallet] = useState<WalletType | null>(null);
     const [selectedWalletIndex, setSelectedWalletIndex] = useState<number | null>(null);
+    const [loading, setLoading] = useState<boolean | false>(false);
+
+    const [derivation, setDerivation] = useState(() => {
+        if (selectedWallet?.chain === "eth") {
+            // return sessionStorage.getItem('derivation') || "ethereum-1";
+            return "ethereum-1";
+        } else if (selectedWallet?.chain === "btc") {
+            return "bitcoin-1";
+        }
+        // Default case if neither condition is met
+        return "ethereum-1";
+    });
+
+    const derivationPath = useDebounce(
+        derivation,
+        selectedWallet?.chain === "eth" ? 1200 : 500
+    );
+
+    // async function chainSignature() {
+    //     setLoading(true);
+    //     // setStatus('🏗️ Creating transaction');
+    //     const { transaction, payload } = await childRef.current.createPayload();
+    //     // const { transaction, payload } = await Eth.createPayload(senderAddress, receiver, amount, undefined);
+    //     console.log("this is MPC_CONTRACT ", MPC_CONTRACT);
+    //     // setStatus(`🕒 Asking ${MPC_CONTRACT} to sign the transaction, this might take a while`);
+    //     try {
+    //         const { big_r, s, recovery_id } = await Eth.requestSignatureToMPC(wallet, MPC_CONTRACT, derivationPath, payload);
+    //         const signedTransaction = await Eth.reconstructSignature(big_r, s, recovery_id, transaction);
+    //         console.log("this is your signed transsaction ", signedTransaction);
+    //         // setSignedTransaction(signedTransaction);
+    //         // setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
+    //         // setStep('relay');
+    //     } catch (e) {
+    //         // setStatus(`❌ Error: ${e.message}`);
+    //         setLoading(false);
+    //     }
+    // }
+
+    async function setSelectedWalletHanlder(index) {
+        console.log("this is index ", index);
+        // eth
+        if (index === 0) {
+            setLoading(true);
+            const { address } = await Eth.deriveAddress(signedAccountId, derivationPath);
+            // setSenderAddress(address);
+            // setSenderLabel(address);
+            const balance = await Eth.getBalance(address);
+            // const transactions = await Eth.getTransactionHistory(address);
+            // Fetch transaction history
+            // const transactions = await Eth.getTransactionHistory(address);
+            // console.log("Transaction history:", transactions);
+            console.log(`Your Ethereum address is: ${address}, balance: ${balance} ETH`)
+
+            let wallet =
+            {
+                img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/Gold%20Elegant%20Business%20Card-2.png",
+                address: address, value: parseFloat(balance), currency: "ETH", chain: "eth"
+            };
+            setSelectedWallet(wallet);
+            setLoading(false);
+        }
+
+        // btc
+        if (index === 1) {
+            setLoading(true);
+            const { address, publicKey } = await BTC.deriveAddress(signedAccountId, derivationPath);
+            // setSenderAddress(address);
+            // setSenderPK(publicKey);
+            const balance = await BTC.getBalance(address);
+            console.log(`Your Bitcoin address is: ${address}, balance: ${balance} satoshi`);
+            let wallet =
+            {
+                img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/Gold%20Elegant%20Business%20Card-2.png",
+                address: address, value: parseFloat(balance), currency: "BTC", chain: "btc"
+            };
+            setSelectedWallet(wallet);
+            setLoading(false);
+        }
+
+        if (index === 2) {
+            setLoading(true);
+            const { address } = await Eth.deriveAddress(signedAccountId, derivationPath);
+            // setSenderAddress(address);
+            // setSenderLabel(address);
+            const balance = await Eth.getBalance(address);
+            console.log(`Your Ethereum address is: ${address}, balance: ${balance} ETH`)
+            let wallet =
+            {
+                img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/Gold%20Elegant%20Business%20Card-2.png",
+                address: address, value: parseFloat(balance), currency: "ETH", chain: "eth"
+            };
+            setSelectedWallet(wallet);
+            setLoading(false);
+        }
+
+    };
+
     return (
         <main className="flex flex-col items-center justify-between bg-white screen-max-width">
-
             <div className="flex flex-col w-full my-14">
                 <h1 id="heading" className="text-2xl font-bold text-black p-4">
                     Good morning, {user} !
@@ -34,39 +146,36 @@ export default function Home() {
                     </h2>
                     <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-black mt-2">
-                            {selectedWallet ? selectedWallet.value : 0}
+                            {loading ?
+                                (<>
+                                    <span className="loading loading-infinity loading-lg text-black"></span>
+                                </>) :
+                                (<>
+                                    {selectedWallet ? selectedWallet.value : 0.00}
+                                </>)}
                         </span>
                         <span className="text-lg text-black">
-                            {selectedWallet ? selectedWallet.currency || 'ETH' : 'ETH'}
+                            {loading ?
+                                (<>
+                                    <span className="loading loading-infinity loading-lg text-black"></span>
+                                </>) :
+                                (<>
+                                    {selectedWallet ? selectedWallet.currency || 'ETH' : 'ETH'}
+                                </>)}
                         </span>
                     </div>
+
+                    <span className="loading loading-infinity loading-lg"></span>
+
                 </div>
             </div>
-
-            {/* <div className="flex flex-col items-center w-full">
-                    <div className="carousel rounded-box max-w-md space-x-4 p-4">
-                        {wallet.map((item, index) => (
-                            <div key={index} className="carousel-item">
-                                <div
-                                    className="card w-96 shadow-xl cursor-pointer"
-                                    onClick={() => setSelectedWallet(item)}
-                                >
-                                    <div className="card-body">
-                                        <img src={item.img} alt={`Wallet ${index + 1}`} />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div> */}
 
             <div className="flex flex-col w-full my-14">
                 <h1 id="heading" className="text-2xl font-bold text-black p-4">
                     My Wallet.
                 </h1>
                 <div className="flex justify-center items-center w-full relative h-64">
-                    {wallet.map((item, index) => (
+                    {walletTest.map((item, index) => (
                         <motion.div
                             key={index}
                             className={`absolute cursor-pointer`}
@@ -74,20 +183,21 @@ export default function Home() {
                                 rotate: 0,
                                 x: '-50%',
                                 y: '-50%',
-                                zIndex: wallet.length - index,
+                                zIndex: walletTest.length - index,
                                 scale: 1 - (index * 0.005)  // Even smaller scaling factor for more exposure
                             }}
                             animate={{
                                 rotate: selectedWalletIndex !== null ? (index - selectedWalletIndex) * 3 : 0,
                                 x: selectedWalletIndex !== null ? `calc(-50% + ${(index - selectedWalletIndex) * 30}%)` : '-50%',  // Increased horizontal spread
                                 y: selectedWalletIndex !== null ? `calc(-50% + ${(index - selectedWalletIndex) * -1}%)` : '-50%',  // Further reduced vertical spread
-                                zIndex: selectedWalletIndex !== null ? (selectedWalletIndex === index ? wallet.length + 1 : wallet.length - Math.abs(index - selectedWalletIndex)) : wallet.length - index,
+                                zIndex: selectedWalletIndex !== null ? (selectedWalletIndex === index ? walletTest.length + 1 : walletTest.length - Math.abs(index - selectedWalletIndex)) : walletTest.length - index,
                                 scale: selectedWalletIndex !== null ? (selectedWalletIndex === index ? 1.1 : 1 - (Math.abs(index - selectedWalletIndex) * 0.005)) : 1 - (index * 0.005)  // Even smaller scaling factor for more exposure
                             }}
                             transition={{ duration: 0.3 }}
                             onClick={() => {
-                                setSelectedWallet(item);
+                                // setSelectedWallet(item);
                                 setSelectedWalletIndex(index);
+                                setSelectedWalletHanlder(index);
                             }}
                             style={{
                                 left: '50%',
@@ -151,7 +261,7 @@ export default function Home() {
                 <h1 id="heading" className="text-2xl font-bold text-black p-4">
                     Upcoming Payments
                 </h1>
-                <ChatBox/>
+                {/* <ChatBox setStatus={undefined} setStatus2={undefined} /> */}
             </div>
 
         </main>
