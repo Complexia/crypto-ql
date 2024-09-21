@@ -11,7 +11,7 @@ import { FunctionCallForm } from "./FunctionCall";
 const Sepolia = 11155111;
 const Eth = new Ethereum('https://rpc2.sepolia.org', Sepolia);
 
-export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions } }) {
+export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions, status2 } }) {
   const { wallet, signedAccountId } = useContext(NearContext);
 
   const [loading, setLoading] = useState(false);
@@ -138,10 +138,10 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions } 
           : <FunctionCallForm ref={childRef} props={{ Eth, senderAddress, loading }} />
       } */}
 
-      {/* <div className="text-center">
-        {step === 'request' && <button className="btn btn-primary text-center" onClick={UIChainSignature} disabled={loading}> Request Signature </button>}
-        {step === 'relay' && <button className="btn btn-success text-center" onClick={relayTransaction} disabled={loading}> Relay Transaction </button>}
-      </div> */}
+      <div className="text-center">
+        {status2 === 'request' && <button className="btn btn-primary text-center" onClick={UIChainSignature} disabled={loading}> Request Signature </button>}
+        {status2 === 'relay' && <button className="btn btn-success text-center" onClick={relayTransaction} disabled={loading}> Relay Transaction </button>}
+      </div>
     </>
   )
 
