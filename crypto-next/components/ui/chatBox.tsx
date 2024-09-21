@@ -46,7 +46,7 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-const ChatBox = ({ setStatus, setStatus2 }) => {
+const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
   // will be fetch from supaBase
   const contact = [
     { img: "https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/profile1.png?t=2024-09-21T02%3A30%3A21.438Z", to: "Ben", value: 15000, status: "Success", prove: "0xabcd...efgh", chain: "eth" },
@@ -72,7 +72,6 @@ const ChatBox = ({ setStatus, setStatus2 }) => {
   const [signedTransaction, setSignedTransaction] = useState(null);
 
   const [receiverAddress, setReceiverAddress] = useState("");
-  const [amount, setAmount] = useState("");
   const [chain, setChain] = useState("");
 
   const [senderLabel, setSenderLabel] = useState("")
@@ -526,13 +525,16 @@ const ChatBox = ({ setStatus, setStatus2 }) => {
         setSenderAddress(json.sender);
         setReceiverAddress(json.receiver);
         setAmount(json.amount);
+        setReceiver(json.receiver);
         setChain(json.chain);
+
 
         if (json.chain === "ethereum" && json.function === "transfer") {
 
-          const Sepolia = 11155111;
-          const Eth = new Ethereum('https://rpc2.sepolia.org', Sepolia);
-          const { transaction, payload } = await Eth.createPayload(signedAccountId, json.receiver, json.amount, undefined);
+          
+
+          setStatus2('request');
+          // const { transaction, payload } = await Eth.createPayload(signedAccountId, json.receiver, json.amount, undefined);
         }
 
 

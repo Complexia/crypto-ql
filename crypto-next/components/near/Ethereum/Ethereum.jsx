@@ -11,7 +11,7 @@ import { FunctionCallForm } from "./FunctionCall";
 const Sepolia = 11155111;
 const Eth = new Ethereum('https://rpc2.sepolia.org', Sepolia);
 
-export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions, status2 } }) {
+export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions, status2, receiver, amount } }) {
   const { wallet, signedAccountId } = useContext(NearContext);
 
   const [loading, setLoading] = useState(false);
@@ -41,6 +41,7 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions, s
       setStep('relay');
 
       setReloaded(false);
+      setStatus2('relay');
       removeUrlParams();
     }
 
@@ -69,8 +70,9 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions, s
   async function chainSignature() {
     setStatus('🏗️ Creating transaction');
 
-    const { transaction, payload } = await childRef.current.createPayload();
-    // const { transaction, payload } = await Eth.createPayload(senderAddress, receiver, amount, undefined);
+    // const { transaction, payload } = await childRef.current.createPayload();
+    
+    const { transaction, payload } = await Eth.createPayload(senderAddress, receiver, amount, undefined);
 
     setStatus(`🕒 Asking ${MPC_CONTRACT} to sign the transaction, this might take a while`);
     try {
@@ -138,8 +140,8 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT, transactions, s
           : <FunctionCallForm ref={childRef} props={{ Eth, senderAddress, loading }} />
       } */}
 
-      <div className="text-center">
-        {status2 === 'request' && <button className="btn btn-primary text-center" onClick={UIChainSignature} disabled={loading}> Request Signature </button>}
+      <div className="">
+        {status2 === 'request' && <button className="btn btn-success text-center" onClick={UIChainSignature} disabled={loading}> Request Signature </button>}
         {status2 === 'relay' && <button className="btn btn-success text-center" onClick={relayTransaction} disabled={loading}> Relay Transaction </button>}
       </div>
     </>

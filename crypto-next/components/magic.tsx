@@ -16,11 +16,13 @@ const Magic = () => {
     const [status, setStatus] = useState("Please login to request a signature");
     const [status2, setStatus2] = useState("na");
     const [chain, setChain] = useState('eth');
+    const [receiver, setReceiver] = useState('');
+    const [amount, setAmount] = useState('');
 
     const txHash = new URLSearchParams(window.location.search).get('transactionHashes');
     const transactions = txHash ? txHash.split(',') : [];
 
-
+    console.log("status2", status2);
     // In your page component or useEffect
 
 
@@ -90,14 +92,14 @@ const Magic = () => {
                         </div>
 
 
-                        {chain === 'eth' && <EthereumView props={{ setStatus, MPC_CONTRACT, transactions, status2}} />}
+                        {chain === 'eth' && <EthereumView props={{ setStatus, MPC_CONTRACT, transactions, status2, receiver, amount}} />}
                         {chain === 'btc' && <BitcoinView props={{ setStatus, MPC_CONTRACT }} />}
 
                     </div>
                 }
                 
                 <div className=" bottom-0 fixed w-2/3 my-4">
-                     <ChatBox setStatus={setStatus} setStatus2={setStatus2}/> 
+                     <ChatBox setStatus={setStatus} setStatus2={setStatus2} setReceiver={setReceiver} setAmount={setAmount}/> 
                 </div>
 
             </div>
