@@ -21,6 +21,7 @@ export function BitcoinView({ props: { setStatus, MPC_CONTRACT } }) {
 
   const [derivation, setDerivation] = useState("bitcoin-1");
   const derivationPath = useDebounce(derivation, 500);
+  
 
   useEffect(() => {
     setSenderAddress('Waiting for you to stop typing...')
