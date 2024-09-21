@@ -46,7 +46,7 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-const ChatBox = ({ setStatus, setStatus2 }) => {
+const ChatBox = ({ setStatus, setStatus2, setReceiver, setAmount }) => {
 
 
   const { wallet, signedAccountId } = useContext(NearContext);
@@ -59,7 +59,6 @@ const ChatBox = ({ setStatus, setStatus2 }) => {
   const [signedTransaction, setSignedTransaction] = useState(null);
 
   const [receiverAddress, setReceiverAddress] = useState("");
-  const [amount, setAmount] = useState("");
   const [chain, setChain] = useState("");
 
   const [senderLabel, setSenderLabel] = useState("")
@@ -507,13 +506,16 @@ const ChatBox = ({ setStatus, setStatus2 }) => {
         setSenderAddress(json.sender);
         setReceiverAddress(json.receiver);
         setAmount(json.amount);
+        setReceiver(json.receiver);
         setChain(json.chain);
+
 
         if (json.chain === "ethereum" && json.function === "transfer") {
 
-          const Sepolia = 11155111;
-          const Eth = new Ethereum('https://rpc2.sepolia.org', Sepolia);
-          const { transaction, payload } = await Eth.createPayload(signedAccountId, json.receiver, json.amount, undefined);
+          
+
+          setStatus2('request');
+          // const { transaction, payload } = await Eth.createPayload(signedAccountId, json.receiver, json.amount, undefined);
         }
 
 
