@@ -22,6 +22,9 @@ const Login = () => {
         const account = await fcl.account(user.addr);
         console.log("this is test account ", account);
         setAccount(account);
+
+        const profile = fcl.currentUser();
+        console.log("this is test user ", profile);
       }
     });
   }, [router]);

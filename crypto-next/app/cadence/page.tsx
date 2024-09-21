@@ -15,8 +15,8 @@ export default function Home() {
 
     return (
         <main className="flex flex-col items-center justify-between screen-max-width">
-           <Transaction/>
-           <Login/>
+           <Transaction amount={1} recipientAddress="0x0fc8af039514689f" />
+            <Login />
         </main>
     );
 }
